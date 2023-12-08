@@ -1,0 +1,8 @@
+site_name: Unreliable File Storage
+repo_url: https://github.com/shakefu/py-unreliable-file-storage
+markdown_extensions:
+  - toc:
+      permalink: True
+theme:
+  name: readthedocs
+  highlightjs: true
