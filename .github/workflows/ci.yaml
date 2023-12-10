@@ -19,6 +19,7 @@ jobs:
         with:
           cache: poetry
       - run: |
+          # Run pre-commit against all files
           poetry install
           poetry run pre-commit run -a
 
@@ -32,6 +33,9 @@ jobs:
         with:
           cache: poetry
       - run: |
+          # Run pytest and generate coverage report
           poetry install
-          poetry run pytest --cov
+          poetry run pytest --cov file_store -v
       - uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-coverage-path: .coverage
