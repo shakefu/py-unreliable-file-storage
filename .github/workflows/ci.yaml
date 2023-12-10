@@ -35,7 +35,7 @@ jobs:
       - run: |
           # Run pytest and generate coverage report
           poetry install
-          poetry run pytest --cov file_store -v
+          poetry run pytest --cov file_store --cov-report xml -v
       - uses: MishaKav/pytest-coverage-comment@main
         with:
-          pytest-coverage-path: .coverage
+          pytest-xml-coverage-path: coverage.xml
