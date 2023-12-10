@@ -223,6 +223,12 @@ def test_get_gives_us_our_file_back_with_no_corruption_longish():
     assert val == content
 
 
+def storagecorrupt_is_falsey_with_length():
+    data = file_store.StorageCorrupt("foo")
+    assert len(data) == 3
+    assert bool(data) is False
+
+
 # Don't fail the suite cause of the extremes of probability
 @pytest.mark.xfail(strict=False)
 def test_get_gives_us_our_file_back_with_corruption_no_replicas():

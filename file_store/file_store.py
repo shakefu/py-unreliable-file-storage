@@ -1,7 +1,6 @@
 """This package provides the FileStore class for storing ASCII text files.
 
-```python# TODO: Make an example
-```
+This is a toy project, don't ever use it if you find it.
 
 """
 import sys
@@ -55,8 +54,23 @@ class TimeoutError(FileStoreError, RuntimeError):
 class FileStore:
     """File storage for reading and writing ASCII text files.
 
+    Args:
+        replicas (int, optional): The number of replicas to write for each file.
+        timeout (float, optional): The timeout for a write to succeed.
+        block_count (int, optional): The number of blocks to use for storage.
+        block_size (int, optional): The size of each block.
+        corruption_rate (float, optional): The rate at which blocks will be corrupted.
+
+    **Example:**
+
     ```python
-    # TODO: Examples here?
+    import file_store
+
+    # Create a new file store with 2 replicas, a 1 second timeout, 1024 blocks,
+    store = file_store.FileStore(replicas=2, timeout=1.0, block_count=1024)
+    store.put("myfile.txt", "This is the content of myfile.txt")
+    content = store.get("myfile.txt")
+    store.delete("myfile.txt")
     ```
 
     """
@@ -77,10 +91,10 @@ class FileStore:
         timeout: float = 1.0,
         block_count: int = 1024,
         block_size: int = 8,
-        corruption_rate: float = 0,
+        corruption_rate: float = 0.0,
     ):
         # Check params for validity, with a locals hack
-        check_filestore_params(**locals())
+        _check_filestore_params(**locals())
 
         # Tuning params for our FileStore behavior
         # Replicas lets us have durability
@@ -147,7 +161,7 @@ class FileStore:
             )
 
         # Split the content into chunks sized one byte smaller than a block, so we can add a null byte to use as a check for corruption
-        # XXX(shakefu): This is a total cheat, because we know the random
+        # NOTE(shakefu): This is a total cheat, because we know the random
         # corruption will not generate null bytes. A more sophisticated
         # algorithm would use a checksum for segments of blocks and check that,
         # or maintain a parity check, or both. This is a solved problem.
@@ -238,7 +252,19 @@ class FileStore:
     def get(self, file_name: str) -> str:
         """Return the contents of `file_name` in our file storage.
 
-        TODO: Document the rest of this
+        If the file is corrupted, it will be deleted, and a `StorageCorrupt` will
+        be returned. This will contain whatever data could be recovered from the
+        block device, with null bytes in place of corrupted blocks. See the
+        documentation for `StorageCorrupt` for more information.
+
+        Args:
+            file_name (str): The name of the file to retrieve.
+
+        Returns:
+            str: The contents of the file.
+
+        Raises:
+            NotFoundError: If the file does not exist.
 
         """
         # Get the metadata for the file
@@ -294,7 +320,7 @@ class FileStore:
         content = "".join(chunks)[: metadata.length]
 
         if corrupted:
-            return CorruptedFile(content)
+            return StorageCorrupt(content)
 
         return content
 
@@ -331,7 +357,7 @@ def chunkstring(value: str, size: int) -> Iterator[str]:
     return (value[0 + i : size + i] for i in range(0, len(value), size))
 
 
-def wrap_asserts(fn: Callable) -> Callable:
+def _wrap_asserts(fn: Callable) -> Callable:
     """Wrap `fn` to catch `AssertionError`s and re-raise as `ParameterError`s.
 
     This is a bit superfluous because we're only using it in one place, but
@@ -359,8 +385,8 @@ def wrap_asserts(fn: Callable) -> Callable:
     return wrapper
 
 
-@wrap_asserts
-def check_filestore_params(
+@_wrap_asserts
+def _check_filestore_params(
     replicas: int,
     timeout: float,
     block_count: int,
@@ -408,7 +434,10 @@ def check_filestore_params(
         corruption_rate <= 1.0
     ), f"'corruption_rate' must be less than or equal to 1: {corruption_rate} <= 1.0"
 
-    # TODO(shakefu): Add asserts for the upper limits on storage, replicas, etc.
+    # NOTE(shakefu): You could add asserts for the upper limits on storage,
+    # replicas, etc. It might not actually break at the upper bounds of what
+    # Python does, but become incredibly painfully slow. Certainly it's not
+    # going to support 2^64 blocks in a device.
 
 
 def calculate_blocks_needed(file_content: str, block_size: int) -> int:
@@ -432,7 +461,7 @@ def calculate_blocks_needed(file_content: str, block_size: int) -> int:
     return block_count or 1
 
 
-class CorruptedFile(str):
+class StorageCorrupt(str):
     """Represents a file that has been at least partially corrupted.
 
     This is a subclass of `str` so it can be used in place of a normal string,
@@ -442,8 +471,8 @@ class CorruptedFile(str):
     The best way to check for a corrupted file is to use `isinstance`:
 
     ```python
-    data = CorruptedFile("This is a corrupted file!")
-    if isinstance(data, CorruptedFile):
+    data = StorageCorrupt("This is a corrupted file!")
+    if isinstance(data, StorageCorrupt):
         print("This file is corrupted!")
     ```
 
@@ -451,9 +480,10 @@ class CorruptedFile(str):
     in some cases:
 
     ```python
-    data = CorruptedFile("This is a corrupted file!")
+    data = StorageCorrupt("This is a corrupted file!")
     if len(data) and not data:
         print("This file is corrupted!")
+    ```
 
     """
 
