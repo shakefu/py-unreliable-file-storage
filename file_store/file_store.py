@@ -160,7 +160,8 @@ class FileStore:
                 f"have {len(self.free_blocks)} free blocks"
             )
 
-        # Split the content into chunks sized one byte smaller than a block, so we can add a null byte to use as a check for corruption
+        # Split the content into chunks sized one byte smaller than a block, so
+        # we can add a null byte to use as a check for corruption
         # NOTE(shakefu): This is a total cheat, because we know the random
         # corruption will not generate null bytes. A more sophisticated
         # algorithm would use a checksum for segments of blocks and check that,
@@ -480,7 +481,8 @@ class StorageCorrupt(str):
 
     This subclass overrides `__bool__` so that its truthy value is always False.
 
-    The best way to check for a corrupted file is to use the helper method `is_corrupted()` on the `FileStore` class:
+    The best way to check for a corrupted file is to use the helper method
+    `is_corrupted()` on the `FileStore` class:
 
     ```python
     data = StorageCorrupt("This is a corrupted file!")
