@@ -28,7 +28,7 @@ class ParameterError(FileStoreError, ValueError):
     """
 
 
-class NotFoundError(FileStoreError, RuntimeError):
+class NotFoundError(FileStoreError, RuntimeError, ValueError):
     """Raised when attempting to access a file that does not exist.
 
     This should indicate the file name that was not found in its error message.
