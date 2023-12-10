@@ -8,21 +8,18 @@ class FileStoreTest(unittest.TestCase):
     def setUp(self) -> None:
         self.file_store = file_store.FileStore()
 
-    @pytest.mark.skip("Comment this line to start working on it")
     def test_put(self):
         self.assertEqual(
             self.file_store.put("hello.txt", "lorem ipsum dolor sit amet"),
             "lorem ipsum dolor sit amet",
         )
 
-    @pytest.mark.skip("Comment this line to start working on it")
     def test_get(self):
         self.file_store.put("hello.txt", "lorem ipsum dolor sit amet again")
         self.assertEqual(
             self.file_store.get("hello.txt"), "lorem ipsum dolor sit amet again"
         )
 
-    @pytest.mark.skip("Comment this line to start working on it")
     def test_delete(self):
         self.file_store.put("hello.txt", "and again, lorem ipsum dolor sit amet")
         self.assertEqual(
