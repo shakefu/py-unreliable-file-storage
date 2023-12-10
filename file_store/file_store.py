@@ -342,6 +342,18 @@ class FileStore:
         # unclaiming all the blocks
         self.free_blocks.extend(metadata.blocks)
 
+    def is_corrupted(self, content: str) -> bool:
+        """Returns True if the content is corrupted, False otherwise.
+
+        Args:
+            content (str): The content to check.
+
+        Returns:
+            bool: True if the content is corrupted, False otherwise.
+
+        """
+        return isinstance(content, StorageCorrupt)
+
 
 def chunkstring(value: str, size: int) -> Iterator[str]:
     """Return `value` broken into chunks of `size` (or less).
@@ -468,7 +480,14 @@ class StorageCorrupt(str):
 
     This subclass overrides `__bool__` so that its truthy value is always False.
 
-    The best way to check for a corrupted file is to use `isinstance`:
+    The best way to check for a corrupted file is to use the helper method `is_corrupted()` on the `FileStore` class:
+
+    ```python
+    data = StorageCorrupt("This is a corrupted file!")
+    FileStore().is_corrupt(data)  # True
+    ```
+
+    It is also effective to use `isinstance`:
 
     ```python
     data = StorageCorrupt("This is a corrupted file!")
