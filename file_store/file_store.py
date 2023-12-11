@@ -300,7 +300,7 @@ class FileStore:
                 if chunk[-1] == "\x00":
                     chunks.append(chunk[:-1])
                     for block in bad_blocks:
-                        self.store.write(block, chunk)
+                        self._put(block, chunk)
                     bad_blocks = []
                     break
 
@@ -308,7 +308,7 @@ class FileStore:
             if bad_blocks:
                 # Set the corruption flag so we can handle this sanely
                 corrupted = True
-                # Append a null chunk
+                # Append a null chunk, instead of the bad data
                 chunks.append("\x00" * (self.block_size - 1))
                 # Reset the bad blocks to continue reading the remaining file
                 bad_blocks = []
@@ -321,6 +321,7 @@ class FileStore:
         content = "".join(chunks)[: metadata.length]
 
         if corrupted:
+            # Wrap the data so we can identify it was corrupted
             return StorageCorrupt(content)
 
         return content
