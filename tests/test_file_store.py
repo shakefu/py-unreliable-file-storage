@@ -118,7 +118,7 @@ def test_delete_raises_error_for_bad_filename():
 
 def test_it_will_timeout_when_writing_highly_corrupt_devices():
     store = file_store.FileStore(block_count=1, corruption_rate=1, timeout=0.01)
-    with pytest.raises(file_store.FileStoreError):
+    with pytest.raises(file_store.TimeoutError):
         store.put("file_name", "this is a test")
 
 
