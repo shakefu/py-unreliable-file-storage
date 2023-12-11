@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "file-store"
-version = "1.0.0"
+version = "1.0.3"
 description = "Unreliable file storage for fun!"
 authors = ["Jacob Alheid <shakefu@gmail.com>"]
 license = "MIT"
